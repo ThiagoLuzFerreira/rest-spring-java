@@ -1,8 +1,10 @@
 package com.thiago.restspringjava.service;
 
 import com.thiago.restspringjava.data.vo.v1.PersonVO;
+import com.thiago.restspringjava.data.vo.v2.PersonVOV2;
 import com.thiago.restspringjava.exception.ResourceNotFoundException;
 import com.thiago.restspringjava.mapper.DozerMapper;
+import com.thiago.restspringjava.mapper.custom.PersonMapper;
 import com.thiago.restspringjava.model.Person;
 import com.thiago.restspringjava.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ public class PersonService {
 
     @Autowired
     private PersonRepository repository;
+
+    @Autowired
+    private PersonMapper mapper;
 
     private Logger logger = Logger.getLogger(PersonService.class.getName());
 
@@ -35,6 +40,12 @@ public class PersonService {
         logger.info("Creating one person");
         Person savedPerson = repository.save(DozerMapper.parseObject(person, Person.class));
         return DozerMapper.parseObject(savedPerson, PersonVO.class);
+    }
+
+    public PersonVOV2 createV2(PersonVOV2 person) {
+        logger.info("Creating one person with V2");
+        Person savedPerson = repository.save(mapper.convertVoToEntity(person));
+        return mapper.convertEntityToVo(savedPerson);
     }
 
     public PersonVO update(PersonVO person){
