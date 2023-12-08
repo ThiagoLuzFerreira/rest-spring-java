@@ -1,5 +1,6 @@
 package com.thiago.restspringjava.service;
 
+import com.thiago.restspringjava.controller.PersonController;
 import com.thiago.restspringjava.data.vo.v1.PersonVO;
 import com.thiago.restspringjava.data.vo.v2.PersonVOV2;
 import com.thiago.restspringjava.exception.ResourceNotFoundException;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.logging.Logger;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class PersonService {
@@ -26,19 +30,27 @@ public class PersonService {
 
     public List<PersonVO> findAll(){
         logger.info("Finding all people");
-        return DozerMapper.parseListObjects(repository.findAll(), PersonVO.class);
+        var persons = DozerMapper.parseListObjects(repository.findAll(), PersonVO.class);
+        persons.forEach(p -> p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel()));
+        return persons;
     }
 
     public PersonVO findById(Long id){
         logger.info("Finding one person");
-
-        return DozerMapper.parseObject(repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not found")), PersonVO.class);
+        var entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not found"));
+        PersonVO vo = DozerMapper.parseObject(entity, PersonVO.class);
+        vo.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
+        return vo;
     }
 
     public PersonVO create(PersonVO person){
         logger.info("Creating one person");
         Person savedPerson = repository.save(DozerMapper.parseObject(person, Person.class));
-        return DozerMapper.parseObject(savedPerson, PersonVO.class);
+
+        var vo = DozerMapper.parseObject(savedPerson, PersonVO.class);
+        vo.add(linkTo(methodOn(PersonController.class).findById(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 
     public PersonVOV2 createV2(PersonVOV2 person) {
@@ -49,13 +61,16 @@ public class PersonService {
 
     public PersonVO update(PersonVO person){
         logger.info("Updating one person");
-        var entity = repository.findById(person.getId()).orElseThrow(() -> new ResourceNotFoundException("Person not found"));
+        var entity = repository.findById(person.getKey()).orElseThrow(() -> new ResourceNotFoundException("Person not found"));
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());
         entity.setAddress(person.getAddress());
         entity.setGender(person.getGender());
 
-        return DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+        PersonVO vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+        vo.add(linkTo(methodOn(PersonController.class).findById(vo.getKey())).withSelfRel());
+
+        return vo;
     }
 
     public void delete(Long id){
