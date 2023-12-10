@@ -34,10 +34,10 @@ public class PersonController {
         return ResponseEntity.ok().body(service.create(person));
     }
 
-    @PostMapping(value = "/v2",produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML }, consumes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
+    /*@PostMapping(value = "/v2",produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML }, consumes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
     public ResponseEntity<PersonVOV2> createV2(@RequestBody PersonVOV2 person) {
         return ResponseEntity.ok().body(service.createV2(person));
-    }
+    }*/
 
     @PutMapping(produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML }, consumes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
     public ResponseEntity<PersonVO> update(@RequestBody PersonVO person) {

@@ -3,6 +3,7 @@ package com.thiago.restspringjava.service;
 import com.thiago.restspringjava.controller.PersonController;
 import com.thiago.restspringjava.data.vo.v1.PersonVO;
 import com.thiago.restspringjava.data.vo.v2.PersonVOV2;
+import com.thiago.restspringjava.exception.RequiredObjectIsNullException;
 import com.thiago.restspringjava.exception.ResourceNotFoundException;
 import com.thiago.restspringjava.mapper.DozerMapper;
 import com.thiago.restspringjava.mapper.custom.PersonMapper;
@@ -44,6 +45,9 @@ public class PersonService {
     }
 
     public PersonVO create(PersonVO person){
+
+        if(person == null) throw new RequiredObjectIsNullException();
+
         logger.info("Creating one person");
         Person savedPerson = repository.save(DozerMapper.parseObject(person, Person.class));
 
@@ -53,14 +57,18 @@ public class PersonService {
         return vo;
     }
 
-    public PersonVOV2 createV2(PersonVOV2 person) {
+    /*public PersonVOV2 createV2(PersonVOV2 person) {
         logger.info("Creating one person with V2");
         Person savedPerson = repository.save(mapper.convertVoToEntity(person));
         return mapper.convertEntityToVo(savedPerson);
-    }
+    }*/
 
     public PersonVO update(PersonVO person){
+
+        if(person == null) throw new RequiredObjectIsNullException();
+
         logger.info("Updating one person");
+
         var entity = repository.findById(person.getKey()).orElseThrow(() -> new ResourceNotFoundException("Person not found"));
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());
