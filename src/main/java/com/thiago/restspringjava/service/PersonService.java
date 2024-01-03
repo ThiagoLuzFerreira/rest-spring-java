@@ -9,6 +9,7 @@ import com.thiago.restspringjava.mapper.DozerMapper;
 import com.thiago.restspringjava.mapper.custom.PersonMapper;
 import com.thiago.restspringjava.model.Person;
 import com.thiago.restspringjava.repository.PersonRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,17 @@ public class PersonService {
         PersonVO vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
         vo.add(linkTo(methodOn(PersonController.class).findById(vo.getKey())).withSelfRel());
 
+        return vo;
+    }
+
+    @Transactional
+    public PersonVO disablePerson(Long id){
+        logger.info("Disabling one person");
+        repository.disabledPerson(id);
+
+        var entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Person not found"));
+        PersonVO vo = DozerMapper.parseObject(entity, PersonVO.class);
+        vo.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
         return vo;
     }
 
